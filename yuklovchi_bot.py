@@ -53,15 +53,6 @@ def get_message_id_from_file(kino_code):
         return None
 
 
-# Fayldan kino kodi va message_id'larni olish
-def get_message_id_from_file(kino_code):
-    try:
-        with open(kino_codes_file, "r") as file:
-            data = json.load(file)
-            return data.get(kino_code)
-    except FileNotFoundError:
-        return None
-
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
