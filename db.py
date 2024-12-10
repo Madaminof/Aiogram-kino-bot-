@@ -1,7 +1,6 @@
 import os
 import json
 
-
 def get_message_id(kino_kodi):
     base_dir = os.path.dirname(__file__)
     json_path = os.path.join(base_dir, "kino_codes.json")

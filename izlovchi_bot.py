@@ -43,7 +43,6 @@ async def get_kino(message: types.Message):
                 from_chat_id=CHANNEL_ID,
                 message_id=message_id,
             )
-
         else:
             await message.answer("Bunday kino kodi topilmadi.")
     except Exception as e:
