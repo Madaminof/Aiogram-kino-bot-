@@ -1,12 +1,24 @@
 services:
-  - type: web
-    name: kino-bot
+  - type: worker
+    name: izlabot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python3 test_izlabot.py"
+    runtime: docker
+    startCommand: "python test_izlabot.py"
 
   - type: worker
-    name: kino-bot-worker
+    name: yuklabot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python3 test_yukla.py"
+    runtime: docker
+    startCommand: "python test_yukla.py"
+
+s
+scs
+s
+c
+sc
+
+c
+s
+
