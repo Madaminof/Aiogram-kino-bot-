@@ -1,0 +1,5 @@
+services:
+  - type: web
+    name: my_project
+    runtime: python
+    startCommand: python start.py
