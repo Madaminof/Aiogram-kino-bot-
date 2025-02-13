@@ -1,0 +1,4 @@
+#!/bin/bash
+pyth= e test_izlabot.py &  
+python3 test_yukla.py  
+

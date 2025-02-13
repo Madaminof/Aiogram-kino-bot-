@@ -13,12 +13,3 @@ services:
     runtime: docker
     startCommand: "python test_yukla.py"
 
-s
-scs
-s
-c
-sc
-
-c
-s
-
