@@ -1,5 +1,12 @@
 services:
   - type: web
-    name: my_project
-    runtime: python
-    startCommand: python start.py
+    name: kino-bot
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python3 test_izlabot.py"
+
+  - type: worker
+    name: kino-bot-worker
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python3 test_yukla.py"
