@@ -41,9 +41,20 @@ async def get_kino_from_file(kino_code: str):
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
     """
-    Start komandasi foydalanuvchiga bot haqida ma'lumot beradi.
+    Start komandasi: foydalanuvchining obuna bo‘lganini tekshiradi va ruxsat beradi.
     """
-    await message.answer("Assalomu alaykum! \n🎬Kino kodini kiriting va bot sizga \ntegishli kinoni topib beradi.")
+    try:
+        user = await bot.get_chat_member(chat_id="@android_notes_developer", user_id=message.from_user.id)
+        if user.status in ["member", "creator", "administrator"]:
+            await message.answer("✅ Obuna tasdiqlandi!\n\n🎬 Kino kodini kiriting va bot sizga tegishli kinoni yuboradi.")
+        else:
+            raise Exception("Not subscribed")
+    except:
+        link = "https://t.me/android_notes_developer"
+        await message.answer(
+            f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{link}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
+            disable_web_page_preview=True
+        )
 
 
 @router.message()

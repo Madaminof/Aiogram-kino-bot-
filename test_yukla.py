@@ -8,7 +8,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 
 # Bot tokeningizni kiriting
-TOKEN = "7357430744:AAHPa5LJk5y1X-0ulhB8IP_YMNbguCfkymc"
+TOKEN = "8050172054:AAGpjljxHT3mQaWDiClKJf9i3D9MqAEUXnw"
 
 # Dispatcher yaratamiz
 dp = Dispatcher()
