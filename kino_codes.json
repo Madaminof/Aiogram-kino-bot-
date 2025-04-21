@@ -18,5 +18,29 @@
     "1": {
         "name": "sames",
         "message_id": 93
+    },
+    "Dasturlash": {
+        "name": "1001",
+        "message_id": 96
+    },
+    "Duhdhd": {
+        "name": "545",
+        "message_id": 97
+    },
+    "Jdjdvdj": {
+        "name": "777",
+        "message_id": 98
+    },
+    "Salom": {
+        "name": "888",
+        "message_id": 99
+    },
+    "Dudvjd": {
+        "name": "999",
+        "message_id": 100
+    },
+    "1002": {
+        "name": "Salomatlik",
+        "message_id": 101
     }
 }

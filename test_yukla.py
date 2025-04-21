@@ -1,14 +1,17 @@
 import asyncio
 import logging
 import json
+
+import aiofiles
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
+from config import UPLOAD_BOT_TOKEN  # Bot tokenini config.py dan olish
 
-# Bot tokeningizni kiriting
-TOKEN = "8050172054:AAGpjljxHT3mQaWDiClKJf9i3D9MqAEUXnw"
+# Bot tokeni
+TOKEN = UPLOAD_BOT_TOKEN
 
 # Dispatcher yaratamiz
 dp = Dispatcher()
@@ -21,37 +24,38 @@ waiting_for_code = False
 kino_codes_file = "kino_codes.json"
 
 
-# Kino kodi, nomi va message_id ni JSON faylga saqlash yoki yangilash
-def save_kino_code(kino_code, kino_name, message_id):
-    try:
-        # Fayldan mavjud ma'lumotni yuklab olish
-        with open(kino_codes_file, "r") as file:
-            try:
-                data = json.load(file)
-            except json.JSONDecodeError:
-                data = {}
-    except FileNotFoundError:
-        data = {}
-
-    # Ma'lumotlarni yangilash
-    data[kino_code] = {"name": kino_name, "message_id": message_id}
-
-    # Yangilangan ma'lumotni faylga qayta yozish
-    with open(kino_codes_file, "w") as file:
-        json.dump(data, file, indent=4)
-
-
 # JSON fayldan kino kodi bo'yicha kino nomi va message_id ni olish
-def get_message_id_from_file(kino_code):
+async def get_message_id_from_file(kino_code: str):
     try:
-        with open(kino_codes_file, "r") as file:
+        async with aiofiles.open(kino_codes_file, "r") as file:
+            data = await file.read()
             try:
-                data = json.load(file)
+                json_data = json.loads(data)
+                return json_data.get(kino_code)
             except json.JSONDecodeError:
                 return None
-            return data.get(kino_code)
     except FileNotFoundError:
         return None
+
+
+# Kino kodi, nomi va message_id ni JSON faylga saqlash yoki yangilash
+async def save_kino_code(kino_code: str, kino_name: str, message_id: int):
+    try:
+        async with aiofiles.open(kino_codes_file, "r") as file:
+            data = await file.read()
+            try:
+                json_data = json.loads(data)
+            except json.JSONDecodeError:
+                json_data = {}
+    except FileNotFoundError:
+        json_data = {}
+
+    # Ma'lumotlarni to'g'ri almashtirish: kino kodi va kino nomini almashtirish
+    json_data[kino_name.strip()] = {"name": kino_code.strip(), "message_id": message_id}
+
+    # Yangilangan ma'lumotni faylga qayta yozish
+    async with aiofiles.open(kino_codes_file, "w") as file:
+        await file.write(json.dumps(json_data, indent=4, ensure_ascii=False))
 
 
 @dp.message(Command("start"))
@@ -84,10 +88,10 @@ async def handle_video(message: Message) -> None:
             sent_message = await message.bot.send_video(
                 chat_id='@kinotopbot01',
                 video=video_id,
-                caption=f"Kino kodi: {kino_code} \nKino nomi:{kino_name}"
+                caption=f"Kino kodi: {kino_code} \nKino nomi: {kino_name}"
             )
             # Kino kodi, nomi va message_id ni JSON faylga saqlash
-            save_kino_code(kino_code.strip(), kino_name.strip(), sent_message.message_id)
+            await save_kino_code(kino_code.strip(), kino_name.strip(), sent_message.message_id)
 
             await message.answer(f"Video va kino kodi kanalga yuborildi. Message ID: {sent_message.message_id}")
             # Video va kod yuborilganidan so'ng, navbatni tozalash
