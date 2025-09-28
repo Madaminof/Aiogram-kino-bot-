@@ -2,3 +2,7 @@ aiofiles==24.1.0
 aiogram==3.17.0
 aiohttp==3.9.1
 supervisor
+
+# 🔹 Database uchun kerakli kutubxonalar
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.29.0
