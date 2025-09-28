@@ -59,7 +59,8 @@ async def start_handler(message: types.Message):
         await message.answer("❌ Obuna tekshirishda xatolik yuz berdi. Keyinroq urinib ko‘ring.")
 
 
-# 🔹 Kino kodini ishlovchi handler
+# test_izlabot.py dan parchasi
+
 @router.message()
 async def get_kino_handler(message: types.Message):
     """Kino kodini yuborganda video chiqarish"""
@@ -71,18 +72,27 @@ async def get_kino_handler(message: types.Message):
         return
 
     try:
-        # Kino nomi va kodini format bilan yuborish
-        caption = f"🎬 Kino: {kino_info['name']}\n🔑 Kod: {kino_info['code']}"
-
+        # 1️⃣ Avval copy_message orqali kanal xabarini olib ko‘ramiz
         await bot.copy_message(
             chat_id=message.chat.id,
             from_chat_id=CHANNEL_ID,
             message_id=kino_info["message_id"],
-            caption=caption
         )
     except Exception as e:
+        # 2️⃣ Agar copy_message ishlamasa → file_id orqali yuboramiz
         logger.error(f"Video yuborishda xatolik: {e}")
-        await message.answer("❌ Video yuborishda xatolik yuz berdi.")
+        if "file_id" in kino_info:
+            try:
+                await bot.send_video(
+                    chat_id=message.chat.id,
+                    video=kino_info["file_id"],
+                    caption=f"🎬 Kino: {kino_info['name']}\n🔑 Kod: {kino_kodi}"
+                )
+            except Exception as e2:
+                logger.error(f"File_id orqali yuborishda ham xatolik: {e2}")
+                await message.answer("❌ Video yuborishda xatolik yuz berdi.")
+        else:
+            await message.answer("❌ Video ma’lumotlari to‘liq emas.")
 
 
 # 🔹 Asosiy ishga tushirish
