@@ -1,4 +1,5 @@
 # test_izlabot.py
+
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher, Router, types
@@ -70,10 +71,14 @@ async def get_kino_handler(message: types.Message):
         return
 
     try:
+        # Kino nomi va kodini format bilan yuborish
+        caption = f"🎬 Kino: {kino_info['name']}\n🔑 Kod: {kino_info['code']}"
+
         await bot.copy_message(
             chat_id=message.chat.id,
             from_chat_id=CHANNEL_ID,
             message_id=kino_info["message_id"],
+            caption=caption
         )
     except Exception as e:
         logger.error(f"Video yuborishda xatolik: {e}")
