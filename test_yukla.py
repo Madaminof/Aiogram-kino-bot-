@@ -21,39 +21,63 @@ user_sessions = {}
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message):
-    await message.answer("👋 Xush kelibsiz!\nAvval video yuboring, so‘ngra kod va nom yuboring. Format: kod: nom")
+    await message.answer(
+        "👋 Xush kelibsiz!\n"
+        "Avval video yuboring 🎥\n"
+        "Keyin esa shu tartibda yuboring:\n\n"
+        "Kino: kino_nomi\n"
+        "Kod: kino_kodi"
+    )
 
 
 @dp.message()
 async def handle_message(message: Message):
     user_id = message.from_user.id
 
-    # Video yuborilgan bo‘lsa
+    # 1️⃣ Video yuborilgan bo‘lsa
     if message.video:
         user_sessions[user_id] = {"video_id": message.video.file_id}
-        await message.answer("✅ Video qabul qilindi.\nEndi formatda yuboring: kod: nom")
+        await message.answer("✅ Video qabul qilindi.\nEndi yuboring:\nKino: kino_nomi")
 
-    # Agar foydalanuvchi video yuborgandan keyin kod yuborsa
-    elif user_id in user_sessions and ":" in message.text:
-        kino_code, kino_name = message.text.split(":", 1)
-        video_id = user_sessions[user_id]["video_id"]
+    # 2️⃣ Agar foydalanuvchi Kino: yuborsa
+    elif user_id in user_sessions and message.text.startswith("Kino:"):
+        kino_name = message.text.replace("Kino:", "").strip()
+        user_sessions[user_id]["kino_name"] = kino_name
+        await message.answer("✅ Kino nomi qabul qilindi.\nEndi yuboring:\nKod: kino_kodi")
 
-        sent_message = await message.bot.send_video(
-            chat_id=CHANNEL_ID,
-            video=video_id,
-            caption=f"🎬 Kino kodi: {kino_code.strip()}\n📌 Nomi: {kino_name.strip()}",
-        )
+    # 3️⃣ Agar foydalanuvchi Kod: yuborsa
+    elif user_id in user_sessions and message.text.startswith("Kod:"):
+        kino_code = message.text.replace("Kod:", "").strip()
+        session = user_sessions[user_id]
 
-        # JSON faylga saqlash
-        await add_kino(kino_code.strip(), kino_name.strip(), sent_message.message_id)
+        # Barcha ma’lumotlar tayyor bo‘lsa kanalga yuborish
+        if "video_id" in session and "kino_name" in session:
+            sent_message = await message.bot.send_video(
+                chat_id=CHANNEL_ID,
+                video=session["video_id"],
+                caption=f"🎬 Kino: {session['kino_name']}\n🔑 Kod: {kino_code}",
+            )
 
-        await message.answer(f"✅ Video kanalga yuborildi.\nMessage ID: {sent_message.message_id}")
+            # JSON ga saqlash
+            await add_kino(kino_code, session["kino_name"], sent_message.message_id)
 
-        # Session tozalash
-        del user_sessions[user_id]
+            await message.answer(
+                f"✅ Video kanalga yuborildi!\n"
+                f"📌 Kino: {session['kino_name']}\n"
+                f"🔑 Kod: {kino_code}"
+            )
+
+            # Session tozalash
+            del user_sessions[user_id]
+        else:
+            await message.answer("❗ Avval Kino: nomini yuboring.")
 
     else:
-        await message.answer("❗ Avval video yuboring, keyin formatda yozing: kod: nom")
+        await message.answer(
+            "❗ Avval video yuboring 🎥, keyin esa quyidagi tartibda yozing:\n\n"
+            "Kino: kino_nomi\n"
+            "Kod: kino_kodi"
+        )
 
 
 async def main():
