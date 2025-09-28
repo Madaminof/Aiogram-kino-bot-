@@ -1,17 +1,13 @@
 from sqlalchemy.future import select
-
 from model.db import async_session
 from model.model import Kino
 
-
-# 🔹 Kino qo‘shish
 async def add_kino(code: str, name: str, message_id: int, file_id: str = None):
     async with async_session() as session:
         kino = Kino(code=code, name=name, message_id=message_id, file_id=file_id)
         session.add(kino)
         await session.commit()
 
-# 🔹 Kod bo‘yicha kino topish
 async def get_kino(code: str):
     async with async_session() as session:
         result = await session.execute(select(Kino).where(Kino.code == code))

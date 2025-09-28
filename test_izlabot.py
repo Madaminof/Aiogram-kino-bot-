@@ -2,27 +2,24 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command
 from aiogram.exceptions import TelegramBadRequest
 
 from config import BOT_TOKEN, CHANNEL_ID, SUBSCRIPTION_CHANNEL
 from storage import get_kino
 
-# Logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s")
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 bot = Bot(
     token=BOT_TOKEN,
     session=AiohttpSession(),
-    default=DefaultBotProperties(parse_mode="HTML"),
+    parse_mode="HTML"  # shu yerda beriladi
 )
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
-# 🔹 Start komandasi
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
     try:
@@ -41,7 +38,6 @@ async def start_handler(message: types.Message):
         logger.error(f"Obuna tekshirishda xatolik: {e}")
         await message.answer("❌ Obuna tekshirishda xatolik yuz berdi.")
 
-# 🔹 Kino kodini ishlovchi handler
 @router.message()
 async def get_kino_handler(message: types.Message):
     kino_kodi = message.text.strip()
@@ -52,7 +48,6 @@ async def get_kino_handler(message: types.Message):
         return
 
     try:
-        # Avval kanal xabarini ko‘chirib beramiz
         await bot.copy_message(
             chat_id=message.chat.id,
             from_chat_id=CHANNEL_ID,
