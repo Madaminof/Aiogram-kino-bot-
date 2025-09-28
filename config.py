@@ -1,7 +1,9 @@
-# config.py
+import os
+from dotenv import load_dotenv
 
-BOT_TOKEN = "8362559515:AAFAOdzHFZtO0SvsAxk2G0_n0euML371J4g"
-UPLOAD_BOT_TOKEN = "8275271917:AAHKOB72toKkv2N9bYKxq7IMQrTLqSPO3Jw"
-CHANNEL_ID = "@kinotopbot001"
-SUBSCRIPTION_CHANNEL = "@android_notes_developer"
-KINO_CODES_FILE = "kino_codes.json"
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+UPLOAD_BOT_TOKEN = os.getenv("UPLOAD_BOT_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
+SUBSCRIPTION_CHANNEL = os.getenv("SUBSCRIPTION_CHANNEL")

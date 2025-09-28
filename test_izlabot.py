@@ -4,18 +4,13 @@ from aiogram import Bot, Dispatcher, Router, types
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import Command
 from aiogram.exceptions import TelegramBadRequest
-
 from config import BOT_TOKEN, CHANNEL_ID, SUBSCRIPTION_CHANNEL
 from storage import get_kino
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-bot = Bot(
-    token=BOT_TOKEN,
-    session=AiohttpSession(),
-    parse_mode="HTML"  # shu yerda beriladi
-)
+bot = Bot(token=BOT_TOKEN, session=AiohttpSession(), parse_mode="HTML")
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)

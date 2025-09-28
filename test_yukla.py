@@ -4,7 +4,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import Command
 from aiogram.types import Message
-
 from config import UPLOAD_BOT_TOKEN, CHANNEL_ID
 from storage import add_kino
 
@@ -32,11 +31,7 @@ async def handle_message(message: Message):
             kino_code = lines[1].split("Kod:")[1].strip()
             video_id = user_sessions[user_id]["video_id"]
 
-            bot = Bot(
-                token=UPLOAD_BOT_TOKEN,
-                session=AiohttpSession(),
-                default=DefaultBotProperties(parse_mode="HTML")
-            )
+            bot = Bot(token=UPLOAD_BOT_TOKEN, session=AiohttpSession(), parse_mode="HTML")
 
             sent_message = await bot.send_video(
                 chat_id=CHANNEL_ID,
@@ -47,17 +42,14 @@ async def handle_message(message: Message):
             await add_kino(kino_code, kino_name, sent_message.message_id, video_id)
             await message.answer(f"✅ Kino kanalga yuborildi.\nMessage ID: {sent_message.message_id}")
             del user_sessions[user_id]
+
         except Exception as e:
             await message.answer(f"❌ Xatolik: {e}")
     else:
         await message.answer("❗ Avval video yuboring, so‘ng `Kino: nomi` va `Kod: kodi` yuboring.")
 
 async def main():
-    bot = Bot(
-        token=UPLOAD_BOT_TOKEN,
-        session=AiohttpSession(),
-        parse_mode="HTML"  # shu yerda beriladi
-    )
+    bot = Bot(token=UPLOAD_BOT_TOKEN, session=AiohttpSession(), parse_mode="HTML")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
