@@ -1,32 +1,26 @@
-import json
-import os
+from sqlalchemy.future import select
 
-KINO_CODES_FILE = "kino_codes.json"
-
-# Fayl mavjud bo'lmasa yaratamiz
-if not os.path.exists(KINO_CODES_FILE):
-    with open(KINO_CODES_FILE, "w", encoding="utf-8") as f:
-        json.dump({}, f, ensure_ascii=False, indent=4)
+from model.db import async_session
+from model.model import Kino
 
 
-async def add_kino(kod: str, name: str, message_id: int, file_id: str):
-    """Yangi kino qo‘shish"""
-    with open(KINO_CODES_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
+# 🔹 Kino qo‘shish
+async def add_kino(code: str, name: str, message_id: int, file_id: str = None):
+    async with async_session() as session:
+        kino = Kino(code=code, name=name, message_id=message_id, file_id=file_id)
+        session.add(kino)
+        await session.commit()
 
-    data[kod] = {
-        "name": name,
-        "message_id": message_id,
-        "file_id": file_id
-    }
-
-    with open(KINO_CODES_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-
-async def get_kino(kod: str):
-    """Kod orqali kino olish"""
-    with open(KINO_CODES_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    return data.get(kod)
+# 🔹 Kod bo‘yicha kino topish
+async def get_kino(code: str):
+    async with async_session() as session:
+        result = await session.execute(select(Kino).where(Kino.code == code))
+        kino = result.scalar_one_or_none()
+        if kino:
+            return {
+                "code": kino.code,
+                "name": kino.name,
+                "message_id": kino.message_id,
+                "file_id": kino.file_id
+            }
+        return None
