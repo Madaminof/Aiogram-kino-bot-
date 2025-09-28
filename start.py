@@ -1,6 +1,13 @@
 # start.py
-import subprocess
+import asyncio
+import test_izlabot
+import test_yukla
 
-# Ikkita botni parallel ishlatish
-subprocess.Popen(["python", "test_izlabot.py"])
-subprocess.Popen(["python", "test_yukla.py"])
+async def main():
+    await asyncio.gather(
+        test_izlabot.main(),
+        test_yukla.main()
+    )
+
+if __name__ == "__main__":
+    asyncio.run(main())
