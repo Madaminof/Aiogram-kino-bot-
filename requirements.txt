@@ -1,4 +1,4 @@
-aiogram==3.5.1
+aiogram==3.6.0
 SQLAlchemy==2.0.20
 asyncpg==0.29.0
 psycopg2-binary==2.9.7
