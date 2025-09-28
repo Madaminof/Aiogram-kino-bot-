@@ -1,13 +1,18 @@
+# test_izlabot.py
 import asyncio
-import aiofiles
-import json
+import logging
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.bot import DefaultBotProperties
+from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command
-from config import BOT_TOKEN, CHANNEL_ID
 
-# Botni sozlash
+from config import BOT_TOKEN, CHANNEL_ID, SUBSCRIPTION_CHANNEL
+from storage import get_kino
+
+# Logging sozlash
+logging.basicConfig(level=logging.INFO)
+
+# Bot obyektlari
 bot = Bot(
     token=BOT_TOKEN,
     session=AiohttpSession(),
@@ -15,42 +20,20 @@ bot = Bot(
 )
 router = Router()
 dp = Dispatcher()
-
-# JSON fayl nomi
-kino_codes_file = "kino_codes.json"
-
-
-async def get_kino_from_file(kino_code: str):
-    """
-    JSON fayldan kino kodi bo'yicha kino nomi va message_id ni qaytaradi.
-    """
-    try:
-        async with aiofiles.open(kino_codes_file, mode="r") as file:
-            try:
-                data = json.loads(await file.read())
-                kino_info = data.get(kino_code)
-                if kino_info:
-                    return kino_info["name"], kino_info["message_id"]
-                return None, None
-            except json.JSONDecodeError:
-                return None, None
-    except FileNotFoundError:
-        return None, None
+dp.include_router(router)
 
 
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
-    """
-    Start komandasi: foydalanuvchining obuna bo‘lganini tekshiradi va ruxsat beradi.
-    """
+    """Start komandasi: obunani tekshiradi"""
     try:
-        user = await bot.get_chat_member(chat_id="@android_notes_developer", user_id=message.from_user.id)
+        user = await bot.get_chat_member(chat_id=SUBSCRIPTION_CHANNEL, user_id=message.from_user.id)
         if user.status in ["member", "creator", "administrator"]:
-            await message.answer("✅ Obuna tasdiqlandi!\n\n🎬 Kino kodini kiriting va bot sizga tegishli kinoni yuboradi.")
+            await message.answer("✅ Obuna tasdiqlandi!\n\n🎬 Kino kodini yuboring.")
         else:
             raise Exception("Not subscribed")
-    except:
-        link = "https://t.me/android_notes_developer"
+    except Exception:
+        link = f"https://t.me/{SUBSCRIPTION_CHANNEL.lstrip('@')}"
         await message.answer(
             f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{link}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
             disable_web_page_preview=True
@@ -58,38 +41,28 @@ async def start_handler(message: types.Message):
 
 
 @router.message()
-async def get_kino(message: types.Message):
-    """
-    Foydalanuvchi kino kodini kiritganda tegishli videoni botga yuboradi.
-    """
+async def get_kino_handler(message: types.Message):
+    """Kino kodini yuborganda video chiqarish"""
     kino_kodi = message.text.strip()
-    try:
-        kino_nomi, message_id = await get_kino_from_file(kino_kodi)
-        if kino_nomi and message_id:
-            # Kino kodi, nomi va message_id topilganda, kino nomi va video yuboriladi
+    kino_info = await get_kino(kino_kodi)
+
+    if kino_info:
+        try:
             await bot.copy_message(
                 chat_id=message.chat.id,
                 from_chat_id=CHANNEL_ID,
-                message_id=message_id,
+                message_id=kino_info["message_id"],
             )
-        else:
-            await message.answer("Bunday kino kodi topilmadi. Iltimos, kino kodini tekshiring.")
-    except Exception as e:
-        await message.answer(f"Xatolik yuz berdi: {e}")
+        except Exception as e:
+            logging.error(f"Video yuborishda xatolik: {e}")
+            await message.answer("❌ Video yuborishda xatolik yuz berdi.")
+    else:
+        await message.answer("❌ Bunday kino kodi topilmadi. Iltimos, kodni tekshiring.")
 
 
 async def main():
-    """
-    Asosiy botni ishga tushirish funksiyasi.
-    """
-    # Routerni dispatcherga ulash
-    dp.include_router(router)
-
-    try:
-        await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot)
-    finally:
-        await bot.session.close()
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
