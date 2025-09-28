@@ -1,9 +1,7 @@
 # config.py
 
-BOT_TOKEN = "7905305634:AAFvNNYSt3E9qXv7O9IhHaZUiXQPmIZs8c0"
-UPLOAD_BOT_TOKEN = "7828238248:AAHcOmBbogFrINA4qHrUW5Vy907TxAIdegs"
-
-CHANNEL_ID = "@kinotopbot01"               # Filmlar saqlanadigan kanal
-SUBSCRIPTION_CHANNEL = "@android_notes_developer"  # Obuna bo‘lish kanali
-
-KINO_CODES_FILE = "kino_codes.json"        # JSON fayl nomi
+BOT_TOKEN = "8362559515:AAFAOdzHFZtO0SvsAxk2G0_n0euML371J4g"
+UPLOAD_BOT_TOKEN = "8275271917:AAHKOB72toKkv2N9bYKxq7IMQrTLqSPO3Jw"
+CHANNEL_ID = "@kinotopbot001"
+SUBSCRIPTION_CHANNEL = "@android_notes_developer"
+KINO_CODES_FILE = "kino_codes.json"
