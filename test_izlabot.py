@@ -1,12 +1,11 @@
 import asyncio
 import logging
-import os
-
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import Command
 from aiogram.exceptions import TelegramBadRequest
-from config import BOT_TOKEN, CHANNEL_ID, SUBSCRIPTION_CHANNEL
+
+from config import BOT_TOKEN, CHANNEL_ID, SUBSCRIPTION_CHANNEL, SUBSCRIPTION_LINK
 from storage import get_kino
 
 logging.basicConfig(level=logging.INFO)
@@ -17,30 +16,33 @@ dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
-import os
-
-SUBSCRIPTION_CHANNEL = int(os.getenv("SUBSCRIPTION_CHANNEL"))  # -100...
-SUBSCRIPTION_LINK = os.getenv("SUBSCRIPTION_LINK")
 
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
+    """Obuna tekshirish"""
     try:
         user = await bot.get_chat_member(SUBSCRIPTION_CHANNEL, message.from_user.id)
         if user.status in ["member", "creator", "administrator"]:
             await message.answer("✅ Obuna tasdiqlandi!\n\n🎬 Kino kodini yuboring.")
         else:
             raise TelegramBadRequest("Not subscribed")
+
     except TelegramBadRequest:
         await message.answer(
-            f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{SUBSCRIPTION_LINK}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
+            f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n"
+            f"👉 <a href='{SUBSCRIPTION_LINK}'>Obuna bo‘lish</a>\n\n"
+            f"Obuna bo‘lgach, /start ni qayta yuboring.",
             disable_web_page_preview=True
         )
+
     except Exception as e:
         logger.error(f"Obuna tekshirishda xatolik: {e}")
         await message.answer("❌ Obuna tekshirishda xatolik yuz berdi.")
 
+
 @router.message()
 async def get_kino_handler(message: types.Message):
+    """Kino kodini yuborilganda topib berish"""
     kino_kodi = message.text.strip()
     kino_info = await get_kino(kino_kodi)
 
@@ -69,10 +71,12 @@ async def get_kino_handler(message: types.Message):
         else:
             await message.answer("❌ Video ma’lumotlari yo‘q.")
 
+
 async def main():
     logger.info("📌 Izlabot ishga tushdi...")
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
