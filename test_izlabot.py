@@ -17,6 +17,11 @@ dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
+import os
+
+SUBSCRIPTION_CHANNEL = int(os.getenv("SUBSCRIPTION_CHANNEL"))  # -100...
+SUBSCRIPTION_LINK = os.getenv("SUBSCRIPTION_LINK")
+
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
     try:
@@ -26,12 +31,10 @@ async def start_handler(message: types.Message):
         else:
             raise TelegramBadRequest("Not subscribed")
     except TelegramBadRequest:
-        link = os.getenv("SUBSCRIPTION_LINK", "")
         await message.answer(
-            f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{link}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
+            f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{SUBSCRIPTION_LINK}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
             disable_web_page_preview=True
         )
-
     except Exception as e:
         logger.error(f"Obuna tekshirishda xatolik: {e}")
         await message.answer("❌ Obuna tekshirishda xatolik yuz berdi.")
