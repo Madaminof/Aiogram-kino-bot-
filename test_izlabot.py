@@ -20,25 +20,36 @@ dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
+
+SUBSCRIPTION_CHANNEL = "@android_notes_developer"
+
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
     try:
-        # Foydalanuvchini kanal a'zoligini tekshirish
+        # Foydalanuvchini kanal a'zoligini tekshiramiz
         user = await bot.get_chat_member(SUBSCRIPTION_CHANNEL, message.from_user.id)
+
         if user.status in ["member", "creator", "administrator"]:
             await message.answer("✅ Obuna tasdiqlandi!\n\n🎬 Kino kodini yuboring.")
         else:
-            raise TelegramBadRequest("Not subscribed")
-    except TelegramBadRequest:
+            # Agar status boshqa bo‘lsa, obuna bo‘lmagan hisoblanadi
+            await message.answer(
+                f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n"
+                f"👉 <a href='https://t.me/{SUBSCRIPTION_CHANNEL.lstrip('@')}'>Obuna bo‘lish</a>\n\n"
+                f"Obuna bo‘lgach, /start ni qayta yuboring.",
+                disable_web_page_preview=True
+            )
+
+    except Exception as e:
+        # Har qanday xato bo‘lsa ham obuna bo‘lish linkini yuboramiz
+        logger.error(f"Obuna tekshirishda xatolik: {e}")
         await message.answer(
             f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n"
             f"👉 <a href='https://t.me/{SUBSCRIPTION_CHANNEL.lstrip('@')}'>Obuna bo‘lish</a>\n\n"
             f"Obuna bo‘lgach, /start ni qayta yuboring.",
             disable_web_page_preview=True
         )
-    except Exception as e:
-        logger.error(f"Obuna tekshirishda xatolik: {e}")
-        await message.answer("❌ Obuna tekshirishda xatolik yuz berdi.")
+
 
 @router.message()
 async def get_kino_handler(message: types.Message):
