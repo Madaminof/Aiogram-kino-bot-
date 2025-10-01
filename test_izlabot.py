@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import os
+
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import Command
@@ -24,11 +26,12 @@ async def start_handler(message: types.Message):
         else:
             raise TelegramBadRequest("Not subscribed")
     except TelegramBadRequest:
-        link = f"https://t.me/{SUBSCRIPTION_CHANNEL.lstrip('@')}"
+        link = os.getenv("SUBSCRIPTION_LINK", "")
         await message.answer(
             f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling:\n👉 <a href='{link}'>Obuna bo‘lish</a>\n\nObuna bo‘lgach, /start ni qayta yuboring.",
             disable_web_page_preview=True
         )
+
     except Exception as e:
         logger.error(f"Obuna tekshirishda xatolik: {e}")
         await message.answer("❌ Obuna tekshirishda xatolik yuz berdi.")
